@@ -17,7 +17,7 @@
   //   npx wrangler kv namespace create STATE
   // and paste the id it prints here.
   "kv_namespaces": [
-    { "binding": "STATE", "id": "REPLACE_WITH_KV_NAMESPACE_ID" }
+    { "binding": "STATE", "id": "cac714c3d99a4d43ae83ab0f4ea7d421" }
   ],
 
   // Reaches the board Worker directly. A plain fetch() to its workers.dev address
