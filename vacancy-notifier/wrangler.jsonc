@@ -1,0 +1,46 @@
+// Cooneen internal vacancies notifier.
+// Checks the vacancy board every hour and emails when a site's vacancies start or end.
+// It never changes Yodeck and never changes the board.
+{
+  "name": "cooneen-vacancy-notifier",
+  "main": "src/index.js",
+  "compatibility_date": "2025-09-01",
+
+  // Keeps console logs in the dashboard (Workers -> this Worker -> Logs).
+  "observability": { "enabled": true },
+
+  // Every hour at 5 past (UTC). The board only gets new data at 08:00 and 12:00 London,
+  // so most runs find nothing new; that is expected and costs nothing.
+  "triggers": { "crons": ["5 * * * *"] },
+
+  // Remembers each site's last result. Create it once with:
+  //   npx wrangler kv namespace create STATE
+  // and paste the id it prints here.
+  "kv_namespaces": [
+    { "binding": "STATE", "id": "REPLACE_WITH_KV_NAMESPACE_ID" }
+  ],
+
+  // Reaches the board Worker directly. A plain fetch() to its workers.dev address
+  // fails with error 1042, because both Workers are on the same account.
+  "services": [
+    { "binding": "BOARD", "service": "cooneenjobs3" }
+  ],
+
+  "vars": {
+    "BOARD_ORIGIN": "https://cooneenjobs3.sdafsda.workers.dev",
+
+    // Must be an address on a domain verified in Resend. Until then, use
+    // "Vacancy Notifier <onboarding@resend.dev>" - Resend then only delivers to the
+    // address your Resend account was created with, and this Worker leaves out the CC.
+    "EMAIL_FROM": "Vacancy Notifier <REPLACE_WITH_VERIFIED_SENDER>",
+    "EMAIL_TO": "hugh.kelly@cooneen.com",
+    "EMAIL_CC": "kevin.kushnahan@cooneen.com",
+
+    // Email once if fresh data can't be had for this many hours.
+    "STALE_ALERT_HOURS": "6"
+  }
+
+  // Secrets (never in this file or in GitHub). Set them with:
+  //   npx wrangler secret put RESEND_API_KEY
+  //   npx wrangler secret put RUN_TOKEN      (optional: enables /run and /status)
+}
